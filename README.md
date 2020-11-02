@@ -17,10 +17,10 @@ Install `pandoc` and put it in the PATH.
 # Usage
 
 ```
-NotesMonitor.exe config.json
+SimpleNotesManager.exe config.json
 ```
 
-You can create a shortcut of `NotesMonitor.exe`. Then edit the properties of the shortcut. Modify its `target` to something like `C:\Users\Me\NotesMonitor.exe C:\Users\Me\NotesProject\config.json`. Now you can just double click this shortcut to start the application.
+You can create a shortcut of `SimpleNotesManager.exe`. Then edit the properties of the shortcut. Modify its `target` to something like `C:\Users\Me\SimpleNotesManager.exe C:\Users\Me\NotesProject\config.json`. Now you can just double click this shortcut to start the application.
 
 ## Configurations
 
