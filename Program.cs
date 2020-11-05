@@ -65,6 +65,7 @@ public class Watcher
         string json_fpath = Path.GetFullPath(args[1]);
         StreamReader json_file = File.OpenText(json_fpath);
         param_ = JsonConvert.DeserializeObject<Param_t>(json_file.ReadToEnd());
+        json_file.Close();
         //
         cwd_ = Path.GetDirectoryName(json_fpath);
         src_fdir_ = Path.GetFullPath(Path.Join(cwd_, param_.src_directory));
