@@ -128,8 +128,8 @@ public class Watcher
             watcher.Path = src_fdir_;
             // Watch for changes in LastAccess and LastWrite times, and
             // the renaming of files or directories.
-            watcher.NotifyFilter = NotifyFilters.LastAccess
-                                 | NotifyFilters.LastWrite
+            // NotifyFilters.LastAccess
+            watcher.NotifyFilter = NotifyFilters.LastWrite
                                  | NotifyFilters.FileName
                                  | NotifyFilters.DirectoryName;
 
@@ -142,6 +142,7 @@ public class Watcher
             watcher.Created += OnCreated;
             watcher.Deleted += OnDeleted;
             watcher.Renamed += OnRenamed;
+            watcher.Error += OnError;
             // Begin watching.
             watcher.EnableRaisingEvents = true;
             // Wait for the user to quit the program.
@@ -202,6 +203,26 @@ public class Watcher
     //         }
     //     }
     // }
+    //
+    //  This method is called when the FileSystemWatcher detects an error.
+    private static void OnError(object source, ErrorEventArgs e)
+    {
+        //  Show that an error has been detected.
+        Console.WriteLine("The FileSystemWatcher has detected an error");
+        //  Give more information if the error is due to an internal buffer overflow.
+        if (e.GetException().GetType() == typeof(InternalBufferOverflowException))
+        {
+            //  This can happen if Windows is reporting many file system events quickly
+            //  and internal buffer of the  FileSystemWatcher is not large enough to handle this
+            //  rate of events. The InternalBufferOverflowException error informs the application
+            //  that some of the file system events are being lost.
+            Console.WriteLine(("The file system watcher experienced an internal buffer overflow: " + e.GetException().Message));
+        }
+        else if (e.GetException().GetType() == typeof(UnauthorizedAccessException))
+        {
+            Console.WriteLine(("The file system watcher experienced an unauthorized access exception: " + e.GetException().Message));
+        }
+    }
     //
     private static void processAll(string src_fpath)
     {
@@ -291,6 +312,10 @@ public class Watcher
             catch (IOException e) when (i <= n_retry_file) {
                 // You may check error code to filter some exceptions, not every error
                 // can be recovered.
+                Thread.Sleep(delay_retry);
+            }
+            catch (UnauthorizedAccessException e) when (i <= n_retry_file) {
+                Console.WriteLine(("The file system watcher experienced an unauthorized access exception: " + e.Message));
                 Thread.Sleep(delay_retry);
             }
         }
