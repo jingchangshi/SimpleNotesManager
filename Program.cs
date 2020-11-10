@@ -267,7 +267,7 @@ public class Watcher
         process.StartInfo.FileName = param_.pandoc_exec;
         process.StartInfo.Arguments = $"-f markdown -t html --template={tpl_fpath} " +
             "--mathjax --number-sections --number-offset=0 --toc --standalone --highlight-style=haddock " +
-            $"--variable date={today} -o {output_fpath} {md_fpath}";
+            $"--variable date={today} -o \"{output_fpath}\" \"{md_fpath}\"";
         // process.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
         // Console.WriteLine(process.StartInfo.Arguments);
         process.Start();
@@ -334,9 +334,17 @@ public class Watcher
     private static void processDeleted(string src_fpath)
     {
         string output_fpath = src_fpath.Replace("src","html");
+        foreach (var md_ext in markdown_ext_list)
+        {
+            if (output_fpath.Contains(md_ext))
+            {
+                output_fpath = output_fpath.Replace(md_ext,".html");
+            }
+        }
         if (File.Exists(output_fpath))
         {
             File.Delete(output_fpath);
+            Console.WriteLine($"{output_fpath} is deleted since {src_fpath} is deleted.");
         }
     }
     //
