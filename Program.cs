@@ -399,14 +399,14 @@ public class Watcher
         {
             if (output_new_fpath.Contains(md_ext))
             {
-                output_new_fpath.Replace(md_ext,".html");
+                output_new_fpath = output_new_fpath.Replace(md_ext,".html");
             }
         }
         foreach (var md_ext in markdown_ext_list)
         {
             if (output_old_fpath.Contains(md_ext))
             {
-                output_old_fpath.Replace(md_ext,".html");
+                output_old_fpath = output_old_fpath.Replace(md_ext,".html");
             }
         }
         //
@@ -421,6 +421,7 @@ public class Watcher
             Environment.Exit(-1);
         }
         File.Move(output_old_fpath, output_new_fpath, false);
+        Console.WriteLine($"{output_old_fpath} is moved to {output_new_fpath} in {MethodBase.GetCurrentMethod().Name}.");
     }
     //
     private static void processAttachmentRenamed(string src_new_fpath, string src_old_fpath)
