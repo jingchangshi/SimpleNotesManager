@@ -294,8 +294,8 @@ public class Watcher
                 return;
             }
         }
-        //
-        string output_fpath = src_fpath.Replace("src","html");
+        // Add the path separator to avoid the bare string `src` in the filename to be replaced.
+        string output_fpath = src_fpath.Replace("\\src\\","\\html\\");
         //
         string output_fdir = Path.GetDirectoryName(output_fpath);
         if (!Directory.Exists(output_fdir))
