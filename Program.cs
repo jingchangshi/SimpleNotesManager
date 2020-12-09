@@ -159,7 +159,9 @@ public class Watcher
         // Specify what is done when a file is changed, created, or deleted.
         // Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         //
-        processAll(e.FullPath);
+        processCreated(e.FullPath);
+        string index_fpath = Path.Combine(output_fdir_, "index.html");
+        generateIndexHtml(index_fpath);
     }
 // 
     private static void OnChanged(object source, FileSystemEventArgs e)
@@ -169,7 +171,7 @@ public class Watcher
         // Specify what is done when a file is changed, created, or deleted.
         // Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         //
-        processAll(e.FullPath);
+        processChanged(e.FullPath);
     }
 
     private static void OnDeleted(object source, FileSystemEventArgs e)
@@ -224,7 +226,24 @@ public class Watcher
         }
     }
     //
-    private static void processAll(string src_fpath)
+    private static void processCreated(string src_fpath)
+    {
+        if (markdown_ext_list.Contains(Path.GetExtension(src_fpath)))
+        {
+            processMarkdown(src_fpath);
+        }
+        else if (Path.GetExtension(src_fpath) == string.Empty)
+        { // directory.
+        // Do nothing.
+            return;
+        }
+        else
+        {
+            processAttachment(src_fpath);
+        }
+    }
+    //
+    private static void processChanged(string src_fpath)
     {
         if (markdown_ext_list.Contains(Path.GetExtension(src_fpath)))
         {
@@ -490,7 +509,7 @@ public class Watcher
                 //
                 if (!skip)
                 {
-                    processAll(f);
+                    processCreated(f);
                 }
             }
             //
@@ -552,6 +571,7 @@ public class Watcher
         string index_content = index_template_content.Replace("CONTENT_TO_BE_REPLACED", String.Join("\n", item_list));
         index_file.WriteLine(index_content);
         index_file.Close();
+        Console.WriteLine($"{index_fpath} is generated.");
     }
     //
     private static void loopDirForGenHtml(string sDir, List<string> item_list, int level, ref int counter)
