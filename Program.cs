@@ -382,7 +382,7 @@ public class Watcher
         {
             processMarkdownRenamed(src_new_fpath, src_old_fpath);
         }
-        else if (src_new_fpath == string.Empty)
+        else if (ext_new == string.Empty)
         { // directory
             processDirectoryRenamed(src_new_fpath, src_old_fpath);
         }
