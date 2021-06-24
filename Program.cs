@@ -12,6 +12,7 @@ public class Param_t
     public string src_directory { get; set; }
     public string output_directory { get; set; }
     public bool initialization { get; set; }
+    public bool run_once { get; set; }
     public List<string> init_dir_list { get; set; }
     public string pandoc_exec { get; set; }
     public string pandoc_html_template { get; set; }
@@ -21,6 +22,7 @@ public class Param_t
     public List<string> search_hide_dir_list { get; set; }
     public List<string> avoid_copy_ext_list { get; set; }
 }
+
 public class Watcher
 {
     //
@@ -121,6 +123,9 @@ public class Watcher
         if (!Directory.Exists(src_fdir_)) {
             Console.WriteLine($"{src_fdir_} does not exist in {MethodBase.GetCurrentMethod().Name}!");
             Environment.Exit(-1);
+        }
+        if (param_.run_once) {
+            return;
         }
         // Create a new FileSystemWatcher and set its properties.
         using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -263,7 +268,8 @@ public class Watcher
     private static void processMarkdown(string md_fpath)
     {
         //
-        string output_fpath = md_fpath.Replace("src","html");
+        // string output_fpath = md_fpath.Replace("src","html");
+        string output_fpath = ReplaceLastOccurrence(md_fpath, param_.src_directory, param_.output_directory);
         foreach (var md_ext in markdown_ext_list)
         {
             if (output_fpath.Contains(md_ext))
@@ -314,7 +320,8 @@ public class Watcher
             }
         }
         // Add the path separator to avoid the bare string `src` in the filename to be replaced.
-        string output_fpath = src_fpath.Replace("\\src\\","\\html\\");
+        // string output_fpath = src_fpath.Replace("\\src\\","\\html\\");
+        string output_fpath = ReplaceLastOccurrence(src_fpath, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
         //
         string output_fdir = Path.GetDirectoryName(output_fpath);
         if (!Directory.Exists(output_fdir))
@@ -352,7 +359,8 @@ public class Watcher
     //
     private static void processDeleted(string src_fpath)
     {
-        string output_fpath = src_fpath.Replace("src","html");
+        // string output_fpath = src_fpath.Replace("src","html");
+        string output_fpath = ReplaceLastOccurrence(src_fpath, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
         foreach (var md_ext in markdown_ext_list)
         {
             if (output_fpath.Contains(md_ext))
@@ -394,8 +402,10 @@ public class Watcher
     //
     private static void processDirectoryRenamed(string src_new_dir, string src_old_dir)
     {
-        string output_new_dir = src_new_dir.Replace("src","html");
-        string output_old_dir = src_old_dir.Replace("src","html");
+        // string output_new_dir = src_new_dir.Replace("src","html");
+        // string output_old_dir = src_old_dir.Replace("src","html");
+        string output_new_dir = ReplaceLastOccurrence(src_new_dir, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
+        string output_old_dir = ReplaceLastOccurrence(src_old_dir, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
         if (!Directory.Exists(output_old_dir))
         {
             Console.WriteLine($"{output_old_dir} does not exist to be moved to {output_new_dir} in {MethodBase.GetCurrentMethod().Name}!");
@@ -412,8 +422,10 @@ public class Watcher
     private static void processMarkdownRenamed(string src_new_fpath, string src_old_fpath)
     {
         //
-        string output_new_fpath = src_new_fpath.Replace("src","html");
-        string output_old_fpath = src_old_fpath.Replace("src","html");
+        // string output_new_fpath = src_new_fpath.Replace("src","html");
+        // string output_old_fpath = src_old_fpath.Replace("src","html");
+        string output_new_fpath = ReplaceLastOccurrence(src_new_fpath, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
+        string output_old_fpath = ReplaceLastOccurrence(src_old_fpath, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
         foreach (var md_ext in markdown_ext_list)
         {
             if (output_new_fpath.Contains(md_ext))
@@ -446,9 +458,10 @@ public class Watcher
     private static void processAttachmentRenamed(string src_new_fpath, string src_old_fpath)
     {
         //
-        string output_new_fpath = src_new_fpath.Replace("src","html");
-        string output_old_fpath = src_old_fpath.Replace("src","html");
-        //
+        // string output_new_fpath = src_new_fpath.Replace("src","html");
+        // string output_old_fpath = src_old_fpath.Replace("src","html");
+        string output_new_fpath = ReplaceLastOccurrence(src_new_fpath, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
+        string output_old_fpath = ReplaceLastOccurrence(src_old_fpath, "\\"+param_.src_directory+"\\", "\\"+param_.output_directory+"\\");
         if (!File.Exists(output_old_fpath))
         {
             Console.WriteLine($"{output_old_fpath} does not exist to be moved to {output_new_fpath} in {MethodBase.GetCurrentMethod().Name}!");
@@ -644,5 +657,16 @@ public class Watcher
         //     // index_file.WriteLine($"<li><a href=\"{item_link}\"><span class=\"link_text\">{item_text}</span></a></li><br>");
         //     // String.Concat(, );
         // }
+    }
+
+    public static string ReplaceLastOccurrence(string Source, string Find, string Replace)
+    {
+        int place = Source.LastIndexOf(Find);
+
+        if(place == -1)
+           return Source;
+
+        string result = Source.Remove(place, Find.Length).Insert(place, Replace);
+        return result;
     }
 }
