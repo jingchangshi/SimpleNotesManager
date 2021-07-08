@@ -372,6 +372,9 @@ public class Watcher
         {
             File.Delete(output_fpath);
             Console.WriteLine($"{output_fpath} is deleted since {src_fpath} is deleted.");
+        } else if (Directory.Exists(output_fpath)) {
+            Directory.Delete(output_fpath, true);
+            Console.WriteLine($"{output_fpath} is deleted since {src_fpath} is deleted.");
         }
     }
     //
