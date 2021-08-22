@@ -21,6 +21,7 @@ public class Param_t
     public List<string> tree_show_file_ext_list { get; set; }
     public List<string> search_hide_dir_list { get; set; }
     public List<string> avoid_copy_ext_list { get; set; }
+    public string html_line_ending { get; set; }
 }
 
 public class Watcher
@@ -31,6 +32,7 @@ public class Watcher
     public static string cwd_;
     public static string src_fdir_;
     public static string output_fdir_;
+    public static string html_line_ending_;
     //
     // public static Assembly currentAssem;
     //
@@ -77,6 +79,7 @@ public class Watcher
         markdown_ext_list.Add(".md");
         markdown_ext_list.Add(".markdown");
         markdown_ext_list.Add(".mkd");
+        html_line_ending_ = param_.html_line_ending;
         // We should use src_fdir_ to obtain the categories
         var folders = Directory.EnumerateDirectories(src_fdir_);
         categories_ = new List<string>();
@@ -292,7 +295,7 @@ public class Watcher
         process.StartInfo.FileName = param_.pandoc_exec;
         process.StartInfo.Arguments = $"-f markdown -t html --template={tpl_fpath} " +
             "--mathjax --number-sections --number-offset=0 --toc --standalone --highlight-style=haddock " +
-            $"--variable date={today} -o \"{output_fpath}\" \"{md_fpath}\"";
+            $"--variable date_overwrite={today} --eol={html_line_ending_} -o \"{output_fpath}\" \"{md_fpath}\"";
         // process.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
         // Console.WriteLine(process.StartInfo.Arguments);
         process.Start();
