@@ -317,7 +317,7 @@ public class Watcher
         //
         foreach (string avoid_ext in param_.avoid_copy_ext_list)
         {
-            if (src_fpath.Contains(avoid_ext))
+            if (Path.GetExtension(src_fpath).Contains(avoid_ext))
             {
                 return;
             }
