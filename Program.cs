@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Reflection;
+using System.Net;
 
 public class Param_t
 {
@@ -42,6 +43,8 @@ public class Watcher
     //
     private const int n_retry_file = 3;
     private const int delay_retry = 1000;
+    //
+    static HTTPServer http_server_;
     //
     public static void Main()
     {
@@ -117,6 +120,19 @@ public class Watcher
         //
         string index_fpath = Path.Combine(output_fdir_, "index.html");
         generateIndexHtml(index_fpath);
+        // build the lunr index for the html files
+        buildIndex(param_.output_directory);
+        // start a http server
+        // Creating server with specified port
+        http_server_ = new HTTPServer(output_fdir_, 8000);
+        string host_url = string.Format("http://{0}:{1}/", "localhost", 8000);
+        // Now it is running:
+        Console.WriteLine("Server is running on this port: " + host_url);
+        // Open the index.html in the browser
+        Process.Start(new ProcessStartInfo{
+            FileName = host_url,
+            UseShellExecute = true
+        });
     }
     //
     [PermissionSetAttribute(SecurityAction.Demand, Name = "FullTrust")]
@@ -157,6 +173,8 @@ public class Watcher
             Console.WriteLine("Press 'q' to quit the sample.");
             while (Console.Read() != 'q') ;
         }
+        // Stop method should be called before exit.
+        http_server_.Stop();
     }
 
     // Define the event handlers.
@@ -480,6 +498,33 @@ public class Watcher
         }
         File.Move(output_old_fpath, output_new_fpath, false);
         Console.WriteLine($"{output_old_fpath} is moved to {output_new_fpath} in {MethodBase.GetCurrentMethod().Name}.");
+    }
+    //
+    private static void buildIndex(string html_dir)
+    {
+        //
+        Process process = new Process();
+        // Configure the process using the StartInfo properties.
+        string exe_fpath = Path.Join(cwd_,"utility");
+        exe_fpath = Path.GetFullPath(Path.Join(exe_fpath,"pagefind_extended.exe"));
+        process.StartInfo.FileName = exe_fpath;
+        process.StartInfo.Arguments = $"--source {html_dir}";
+        // process.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
+        // Console.WriteLine(process.StartInfo.Arguments);
+        process.Start();
+        // Waits here for the process to exit.
+        process.WaitForExit();
+        //
+        string html_idx_fpath = Path.Join(cwd_,html_dir);
+        html_idx_fpath = Path.GetFullPath(Path.Join(html_idx_fpath,"lunr_index.js"));
+        if (File.Exists(html_idx_fpath))
+        {
+            Console.WriteLine($"{html_idx_fpath} is generated.");
+        }
+        else
+        {
+            Console.WriteLine($"WARNING: {html_idx_fpath} fails to be generated!");
+        }
     }
     //
     private static void cleanOutput(string target_fdir)
