@@ -2,7 +2,7 @@
 
 Simple Notes Manager(SNM) converts markdown files to html file and organizes them in another directory. It also generates index.html as a summary of them. Then it monitors any change in the source directory to process them in the real-time.
 
-Publish cmd: `dotnet publish -c Release -r win-x64 -p:PublishReadyToRun=true -p:PublishSingleFile=true`
+Publish cmd: `dotnet publish -c Release -r win-x64 -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:PublishSingleFile=true`.
 
 # Screenshots
 
@@ -12,20 +12,14 @@ Publish cmd: `dotnet publish -c Release -r win-x64 -p:PublishReadyToRun=true -p:
 
 # Requirements
 
-Install `pandoc` and put it in the PATH.
+None.
 
 # Usage
 
-```
-SimpleNotesManager.exe config.json
-```
-
-You can create a shortcut of `SimpleNotesManager.exe`. Then edit the properties of the shortcut. Modify its `target` to something like `C:\Users\Me\SimpleNotesManager.exe C:\Users\Me\NotesProject\config.json`. Now you can just double click this shortcut to start the application.
+Directly download the file in this [Github repo](https://github.com/jingchangshi/NoteProject).
+It contains the executable to start the note manager.
 
 ## Configurations
 
 Check the example `monitor.json` in the `doc` directory.
 
-# TODO
-
-1. GUI
