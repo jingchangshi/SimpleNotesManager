@@ -15,7 +15,7 @@ public class Param_t
     public bool initialization { get; set; }
     public bool run_once { get; set; }
     public List<string> init_dir_list { get; set; }
-    public string pandoc_exec { get; set; }
+    // public string pandoc_exec { get; set; }
     public string pandoc_html_template { get; set; }
     public string index_html_template { get; set; }
     public List<string> tree_hide_dir_list { get; set; }
@@ -313,7 +313,10 @@ public class Watcher
         //
         Process process = new Process();
         // Configure the process using the StartInfo properties.
-        process.StartInfo.FileName = param_.pandoc_exec;
+        string pandoc_exe_fpath = Path.Join(cwd_,"utility");
+        pandoc_exe_fpath = Path.Join(pandoc_exe_fpath, "pandoc.exe");
+        // process.StartInfo.FileName = param_.pandoc_exec;
+        process.StartInfo.FileName = pandoc_exe_fpath;
         process.StartInfo.Arguments = $"-f markdown -t html --template={tpl_fpath} " +
             "--mathjax --number-sections --number-offset=0 --toc --standalone --highlight-style=haddock " +
             $"--variable date_overwrite={today} --eol={html_line_ending_} -o \"{output_fpath}\" \"{md_fpath}\"";
@@ -519,7 +522,7 @@ public class Watcher
         process.WaitForExit();
         //
         string html_idx_fpath = Path.Join(cwd_,html_dir);
-        html_idx_fpath = Path.GetFullPath(Path.Join(html_idx_fpath,"_pagefind"));
+        html_idx_fpath = Path.Join(html_idx_fpath,"_pagefind");
         html_idx_fpath = Path.GetFullPath(Path.Join(html_idx_fpath,"pagefind.js"));
         if (File.Exists(html_idx_fpath))
         {
@@ -529,6 +532,14 @@ public class Watcher
         {
             Console.WriteLine($"WARNING: {html_idx_fpath} fails to be generated!");
         }
+        // Replace the pagefind-ui.js to allow open the search result in a new tab
+        string pagefind_ui_js_old_fpath = Path.Join(cwd_,html_dir);
+        pagefind_ui_js_old_fpath = Path.Join(pagefind_ui_js_old_fpath,"_pagefind");
+        pagefind_ui_js_old_fpath = Path.GetFullPath(Path.Join(pagefind_ui_js_old_fpath,"pagefind-ui.js"));
+        string pagefind_ui_js_new_fpath = Path.Join(cwd_,"utility");
+        pagefind_ui_js_new_fpath = Path.GetFullPath(Path.Join(pagefind_ui_js_new_fpath,"pagefind-ui.js"));
+        File.Copy(pagefind_ui_js_new_fpath, pagefind_ui_js_old_fpath, true);
+        Console.WriteLine($"{pagefind_ui_js_old_fpath} is updated");
     }
     //
     private static void cleanOutput(string target_fdir)
