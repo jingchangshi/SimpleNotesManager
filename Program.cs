@@ -45,6 +45,7 @@ public class Watcher
     private const int delay_retry = 1000;
     //
     static HTTPServer http_server_;
+    static string host_url_;
     //
     public static void Main()
     {
@@ -122,15 +123,17 @@ public class Watcher
         generateIndexHtml(index_fpath);
         // build the lunr index for the html files
         buildIndex(param_.output_directory);
+        // Copy the assets
+        CopyFilesRecursively(Path.Join(cwd_, "assets"), Path.Join(output_fdir_, "assets"));
         // start a http server
         // Creating server with specified port
         http_server_ = new HTTPServer(output_fdir_, 8000);
-        string host_url = string.Format("http://{0}:{1}/", "localhost", 8000);
+        host_url_ = string.Format("http://{0}:{1}", "localhost", 8000);
         // Now it is running:
-        Console.WriteLine("Server is running on this port: " + host_url);
+        Console.WriteLine("Server is running on this port: " + host_url_);
         // Open the index.html in the browser
         Process.Start(new ProcessStartInfo{
-            FileName = host_url,
+            FileName = host_url_,
             UseShellExecute = true
         });
     }
@@ -516,7 +519,8 @@ public class Watcher
         process.WaitForExit();
         //
         string html_idx_fpath = Path.Join(cwd_,html_dir);
-        html_idx_fpath = Path.GetFullPath(Path.Join(html_idx_fpath,"lunr_index.js"));
+        html_idx_fpath = Path.GetFullPath(Path.Join(html_idx_fpath,"_pagefind"));
+        html_idx_fpath = Path.GetFullPath(Path.Join(html_idx_fpath,"pagefind.js"));
         if (File.Exists(html_idx_fpath))
         {
             Console.WriteLine($"{html_idx_fpath} is generated.");
@@ -720,4 +724,19 @@ public class Watcher
         string result = Source.Remove(place, Find.Length).Insert(place, Replace);
         return result;
     }
+
+    private static void CopyFilesRecursively(string sourcePath, string targetPath)
+{
+    //Now Create all of the directories
+    foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+    {
+        Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+    }
+
+    //Copy all the files & Replaces any files with the same name
+    foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",SearchOption.AllDirectories))
+    {
+        File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+    }
+}
 }
