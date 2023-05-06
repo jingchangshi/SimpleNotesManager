@@ -147,6 +147,7 @@ public class Watcher
             Environment.Exit(-1);
         }
         if (param_.run_once) {
+            http_server_.Stop();
             return;
         }
         // Create a new FileSystemWatcher and set its properties.
